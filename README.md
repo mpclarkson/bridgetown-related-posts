@@ -69,7 +69,7 @@ The gem is available as open source under the terms of the MIT License.
 ## Requirements
 
 - Ruby >= 3.3.0
-- Bridgetown >= 1.3.0, < 2.0
+- Bridgetown >= 1.3.0, <= 3.0
 
 ## Sponsor
 
