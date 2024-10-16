@@ -11,7 +11,7 @@ module BridgetownRelatedPosts
         BridgetownRelatedPosts.set_config(config)
         posts_data = prepare_posts_data
         if posts_data.empty?
-          Bridgetown.logger.warn "No posts found for RelatedPostsBuilder"
+          Bridgetown.logger.warn "Bridgetown Related Posts:", "No posts found for RelatedPostsBuilder"
         else
           similarity_matrix = calculate_similarity(posts_data)
           add_related_posts(posts_data, similarity_matrix)
@@ -20,8 +20,10 @@ module BridgetownRelatedPosts
     end
   
     def prepare_posts_data
+      verbose = config.related_posts&.verbose
       posts = site.collections["posts"].resources
-      Bridgetown.logger.info "Number of posts found: #{posts.size}"
+      Bridgetown.logger.info "Bridgetown Related Posts:", "Generating related posts"
+      Bridgetown.logger.info "Number of posts found: #{posts.size}" if verbose
     
       posts.map do |post|
         begin
@@ -98,11 +100,12 @@ module BridgetownRelatedPosts
   
     def add_related_posts(posts_data, similarity_matrix)
       limit = config.related_posts&.limit || 5
+      verbose = config.related_posts&.verbose
       
       posts_data.each do |post|
         similar_posts = similarity_matrix[post[:relative_path]]
         if similar_posts.nil?
-          puts "No similar posts found for: #{post[:relative_path]}"
+          Bridgetown.logger.warning "No similar posts found for: #{post[:relative_path]}"
           next
         end
 
@@ -119,11 +122,11 @@ module BridgetownRelatedPosts
           # Add related posts to the post's data
           actual_post.data["related_posts"] = similar_posts
     
-          Bridgetown.logger.info "Related posts for #{actual_post.data["title"]}:"
+          Bridgetown.logger.info "Related posts for #{actual_post.data["title"]}:" if verbose
     
           similar_posts.each do |related_post|
             if related_post
-              Bridgetown.logger.info "  - #{related_post.data["title"]}"
+              Bridgetown.logger.info "  - #{related_post.data["title"]}" if verbose
             else
               Bridgetown.logger.warning "  - Related post not found"
             end
